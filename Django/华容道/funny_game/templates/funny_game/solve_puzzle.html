@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <title>华容道求解器</title>
+</head>
+<body>
+    <h1>华容道求解器</h1>
+    <form method="post" action="{% url 'solve_puzzle' %}">
+        {% csrf_token %}
+        <label for="initial_state">请输入初始状态（空格用 0 表示，用空格分隔数字）：</label>
+        <input type="text" id="initial_state" name="initial_state" required placeholder="例如：1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 0">
+        <br>
+        <label for="puzzle_size">选择华容道阶数：</label>
+        <select id="puzzle_size" name="puzzle_size" required>
+            <option value="4">4阶</option>
+            <option value="5">5阶</option>
+        </select>
+        <br>
+        <label for="print_each_step">是否打印每步布局：</label>
+        <input type="checkbox" id="print_each_step" name="print_each_step">
+        <br>
+        <button type="submit">求解</button>
+    </form>
+    <div id="result"></div>
+    <script>
+        document.querySelector('form').onsubmit = async function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            const response = await fetch(this.action, {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.text();
+            document.getElementById('result').innerHTML = result;
+        };
+    </script>
+</body>
+</html>
