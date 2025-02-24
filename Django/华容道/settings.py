@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'your-secret-key-here'
@@ -64,11 +64,12 @@ TIME_ZONE = 'Asia/Shanghai'
 USE_I18N = True
 USE_TZ = True
 
+# 静态文件配置
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = str(BASE_DIR / 'staticfiles')
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
+    str(BASE_DIR / 'static'),
 ]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
