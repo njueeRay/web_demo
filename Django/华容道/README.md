@@ -28,7 +28,7 @@
 ## 技术实现
 
 ### 后端实现
-- **框架**: Django 4.2.0+
+- **框架**: Django 5.1.6
 - **核心算法**: 
   - A*搜索算法（优化版）
   - 曼哈顿距离启发式函数
@@ -68,43 +68,57 @@
 │   ├── templates/
 │   │   └── funny_game/
 │   │       └── solve_puzzle.html  # 主界面模板
-│   └── views.py                   # 游戏逻辑处理
+│   ├── views.py                   # 游戏逻辑处理
+│   ├── urls.py                    # URL配置
+│   ├── apps.py                    # 应用配置
+│   └── __init__.py               # Python包标识
 ├── static/                        # 静态资源目录
+├── staticfiles/                   # 收集的静态文件
 ├── requirements.txt               # 项目依赖
 ├── settings.py                    # Django配置文件
 ├── urls.py                        # URL路由配置
-└── wsgi.py                       # WSGI服务器配置
+├── wsgi.py                        # WSGI服务器配置
+└── manage.py                      # Django管理脚本
 ```
 
 ## 部署说明
 
 1. **环境要求**:
    ```
-   Python 3.6+
-   Django 4.2.0+
+   Python 3.10+
+   Django 5.1.6
    ```
 
 2. **安装步骤**:
    ```bash
    # 1. 创建虚拟环境
-   python -m venv venv
+   python -m venv huarongdao-env
    
    # 2. 激活虚拟环境
    # Windows:
-   venv\Scripts\activate
+   huarongdao-env\Scripts\activate
    # Linux/Mac:
-   source venv/bin/activate
+   source huarongdao-env/bin/activate
    
    # 3. 安装依赖
    pip install -r requirements.txt
    
-   # 4. 运行开发服务器
-   python manage.py runserver
+   # 4. 运行部署脚本
+   bash deploy.sh
    ```
 
-3. **访问方式**:
-   - 开发环境：http://127.0.0.1:8000
-   - 生产环境：根据具体部署方式配置
+3. **PythonAnywhere配置**:
+   ```
+   # Web应用配置
+   Source code: /home/用户名/myhuarongdao/Django/华容道
+   Working directory: /home/用户名/myhuarongdao/Django/华容道
+   WSGI configuration file: /var/www/用户名_pythonanywhere_com_wsgi.py
+   Python version: 3.10
+   
+   # 静态文件配置
+   URL: /static/
+   Directory: /home/用户名/myhuarongdao/Django/华容道/staticfiles
+   ```
 
 ## 性能优化
 
@@ -118,13 +132,31 @@
    - 使用事件委托
    - CSS3硬件加速
 
+## 测试记录
+
+### 2025-02-24 部署测试
+- **环境**: PythonAnywhere
+- **Python版本**: 3.10.5
+- **Django版本**: 5.1.6
+- **测试项目**:
+  1. 静态文件服务 ✓
+  2. 游戏界面加载 ✓
+  3. 布局生成功能 ✓
+  4. 求解器功能 ✓
+  5. 数据库连接 ✓
+- **性能测试**:
+  - 3阶华容道求解: < 1秒 ✓
+  - 4阶华容道求解: < 10秒 ✓
+  - 5阶华容道求解: < 30秒 ✓
+- **结论**: 所有功能测试通过，性能符合预期
+
 ## 注意事项
 
 1. 在生产环境部署时：
    - 修改`settings.py`中的`DEBUG`为`False`
    - 配置正确的`ALLOWED_HOSTS`
    - 使用安全的`SECRET_KEY`
-   - 配置静态文件服务
+   - 确保静态文件正确收集
 
 2. 性能考虑：
    - 3阶和4阶华容道通常能快速求解
@@ -162,6 +194,20 @@
 ## 许可证
 
 本项目采用MIT许可证。详见LICENSE文件。
+
+## 更新日志
+
+### 2025-02-24
+- 完成项目部署配置优化
+- 修复相对导入问题
+- 优化静态文件处理
+- 所有功能测试通过
+
+### 2025-02-23
+- 优化A*算法性能
+- 修复布局可解性判断
+- 改进随机布局生成
+- 添加超时处理机制
 
 ---
 
