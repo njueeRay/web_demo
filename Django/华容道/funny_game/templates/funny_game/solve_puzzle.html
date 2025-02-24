@@ -2,38 +2,545 @@
 <html lang="zh-cn">
 <head>
     <meta charset="UTF-8">
-    <title>华容道求解器</title>
+    <title>华容道游戏与求解器</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #e6f7ff;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            gap: 20px;
+        }
+        .game-container {
+            flex: 1;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .solver-container {
+            flex: 1;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .back-button {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #666;
+            cursor: pointer;
+        }
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .music-toggle {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background: #ddd;
+            border-radius: 15px;
+            cursor: pointer;
+        }
+        .music-toggle.on {
+            background: #4CAF50;
+        }
+        .music-toggle::after {
+            content: '';
+            position: absolute;
+            width: 26px;
+            height: 26px;
+            background: white;
+            border-radius: 13px;
+            top: 2px;
+            left: 2px;
+            transition: 0.3s;
+        }
+        .music-toggle.on::after {
+            left: 32px;
+        }
+        .puzzle-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            background: #fff;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .puzzle-tile {
+            aspect-ratio: 1;
+            background: #ffb6c1;
+            border: none;
+            border-radius: 8px;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .puzzle-tile:hover {
+            transform: scale(1.05);
+        }
+        .puzzle-tile.empty {
+            background: transparent;
+        }
+        .button {
+            width: 100%;
+            padding: 15px;
+            background: #1890ff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+        .button:hover {
+            background: #40a9ff;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        .form-group input[type="text"],
+        .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .form-group select {
+            cursor: pointer;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            white-space: pre-wrap;
+        }
+        .mini-puzzle-grid {
+            display: grid;
+            gap: 4px;
+            background: #fff;
+            padding: 8px;
+            border-radius: 6px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+            width: 150px;
+            margin: 10px 0;
+        }
+        .mini-puzzle-tile {
+            aspect-ratio: 1;
+            background: #ffb6c1;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: bold;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .mini-puzzle-tile.empty {
+            background: transparent;
+        }
+        .step-controls {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .step-button {
+            padding: 8px 15px;
+            background: #1890ff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .step-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
-    <h1>华容道求解器</h1>
-    <form method="post" action="{% url 'solve_puzzle' %}">
-        {% csrf_token %}
-        <label for="initial_state">请输入初始状态（空格用 0 表示，用空格分隔数字）：</label>
-        <input type="text" id="initial_state" name="initial_state" required placeholder="例如：1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 0">
-        <br>
-        <label for="puzzle_size">选择华容道阶数：</label>
-        <select id="puzzle_size" name="puzzle_size" required>
-            <option value="4">4阶</option>
-            <option value="5">5阶</option>
-        </select>
-        <br>
-        <label for="print_each_step">是否打印每步布局：</label>
-        <input type="checkbox" id="print_each_step" name="print_each_step">
-        <br>
-        <button type="submit">求解</button>
-    </form>
-    <div id="result"></div>
+    <div class="container">
+        <div class="game-container">
+            <h2>华容道游戏</h2>
+            <div class="header">
+                <button class="back-button">←</button>
+            </div>
+            <div class="status-bar">
+                <div>时间：<span id="timer">0s</span></div>
+                <div class="music-toggle"></div>
+                <div>步数：<span id="steps">0</span></div>
+            </div>
+            <div class="puzzle-grid" id="puzzleGrid">
+                <!-- 方块将通过JavaScript动态生成 -->
+            </div>
+            <button class="button" id="restartButton">重新开始</button>
+        </div>
+
+        <div class="solver-container">
+            <h2>华容道求解器</h2>
+            <form id="solverForm" method="post" action="{% url 'solve_puzzle' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="initial_state">初始状态（空格用0表示，用空格分隔数字）：</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="initial_state" name="initial_state" required 
+                               placeholder="例如：1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 0">
+                        <button type="button" class="button" id="getCurrentLayout" style="width: auto; margin: 0; padding: 8px 15px;">
+                            获取当前布局
+                        </button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="puzzle_size">选择华容道阶数：</label>
+                    <select id="puzzle_size" name="puzzle_size" required>
+                        <option value="3">3阶</option>
+                        <option value="4" selected>4阶</option>
+                        <option value="5">5阶</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="print_each_step" name="print_each_step">
+                        显示每步布局
+                    </label>
+                </div>
+                <button type="submit" class="button">求解</button>
+            </form>
+            <div id="result" class="result"></div>
+        </div>
+    </div>
+
     <script>
-        document.querySelector('form').onsubmit = async function(event) {
+        // 游戏状态
+        let gameState = {
+            tiles: Array.from({length: 9}, (_, i) => i + 1),
+            emptyPos: 8,
+            steps: 0,
+            time: 0,
+            timer: null,
+            musicOn: false,
+            size: 3  // 默认从3阶开始
+        };
+
+        // 计算逆序数（不包括空格）
+        function getInversionCount(arr) {
+            // 创建不包含空格的数组
+            const numbers = arr.filter(num => num !== 0);
+            let count = 0;
+            for (let i = 0; i < numbers.length - 1; i++) {
+                for (let j = i + 1; j < numbers.length; j++) {
+                    if (numbers[i] > numbers[j]) {
+                        count++;
+                    }
+                }
+            }
+            return count;
+        }
+
+        // 获取空格的行数（从底部数）
+        function getEmptyTileRow(arr, size) {
+            const emptyIndex = arr.indexOf(0);
+            const row = Math.floor(emptyIndex / size);  // 从顶部数起的行数（0-based）
+            return size - 1 - row;  // 转换为从底部数起的行数（0-based）
+        }
+
+        // 获取目标状态
+        function getTargetState(size) {
+            return Array.from({length: size * size}, (_, i) => 
+                i === size * size - 1 ? 0 : i + 1
+            );
+        }
+
+        // 检查布局是否可解
+        function isSolvable(arr, size) {
+            const invCount = getInversionCount(arr);
+            if (size % 2 === 1) {
+                // 奇数阶（3阶和5阶）：逆序数为偶数时可解
+                return invCount % 2 === 0;
+            } else {
+                // 偶数阶（4阶）：空格所在行数（从底部数）加上逆序数的和为偶数时可解
+                const emptyRow = getEmptyTileRow(arr, size);
+                return (invCount + emptyRow) % 2 === 0;
+            }
+        }
+
+        // 生成有序数组
+        function generateOrderedArray(size) {
+            return Array.from({length: size * size}, (_, i) => i + 1);
+        }
+
+        // 生成随机可解布局
+        function generateSolvableLayout(size) {
+            // 生成目标状态
+            const targetState = getTargetState(size);
+            
+            // 从目标状态开始，进行随机移动来生成初始布局
+            let currentState = [...targetState];
+            const moves = size === 3 ? 50 : (size === 4 ? 100 : 150); // 根据阶数决定随机移动次数
+            
+            for (let i = 0; i < moves; i++) {
+                const emptyIndex = currentState.indexOf(0);
+                const emptyX = Math.floor(emptyIndex / size);
+                const emptyY = emptyIndex % size;
+                
+                // 获取所有可能的移动方向
+                const possibleMoves = [];
+                if (emptyX > 0) possibleMoves.push(-size); // 上
+                if (emptyX < size - 1) possibleMoves.push(size); // 下
+                if (emptyY > 0) possibleMoves.push(-1); // 左
+                if (emptyY < size - 1) possibleMoves.push(1); // 右
+                
+                // 随机选择一个方向移动
+                const move = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+                const swapIndex = emptyIndex + move;
+                
+                // 交换空格和数字
+                [currentState[emptyIndex], currentState[swapIndex]] = 
+                [currentState[swapIndex], currentState[emptyIndex]];
+            }
+            
+            return currentState;
+        }
+
+        // 打乱方块（确保可解）
+        function shuffleTiles() {
+            gameState.tiles = generateSolvableLayout(gameState.size);
+        }
+
+        // 初始化游戏
+        function initGame() {
+            gameState.tiles = Array.from({length: gameState.size * gameState.size}, (_, i) => i + 1);
+            gameState.tiles[gameState.tiles.length - 1] = 0;
+            shuffleTiles();
+            renderGrid();
+            startTimer();
+            gameState.steps = 0;
+            document.getElementById('steps').textContent = '0';
+        }
+
+        // 渲染网格
+        function renderGrid() {
+            const grid = document.getElementById('puzzleGrid');
+            grid.style.gridTemplateColumns = `repeat(${gameState.size}, 1fr)`;
+            grid.innerHTML = '';
+            gameState.tiles.forEach((num, index) => {
+                const tile = document.createElement('div');
+                tile.className = `puzzle-tile ${num === 0 ? 'empty' : ''}`;
+                if (num !== 0) {
+                    tile.textContent = num;
+                }
+                tile.onclick = () => moveTile(index);
+                grid.appendChild(tile);
+            });
+        }
+
+        // 移动方块
+        function moveTile(index) {
+            const emptyIndex = gameState.tiles.indexOf(0);
+            if (isAdjacent(index, emptyIndex)) {
+                [gameState.tiles[index], gameState.tiles[emptyIndex]] = 
+                [gameState.tiles[emptyIndex], gameState.tiles[index]];
+                gameState.steps++;
+                document.getElementById('steps').textContent = gameState.steps;
+                renderGrid();
+                checkWin();
+            }
+        }
+
+        // 检查是否相邻
+        function isAdjacent(pos1, pos2) {
+            const row1 = Math.floor(pos1 / gameState.size);
+            const col1 = pos1 % gameState.size;
+            const row2 = Math.floor(pos2 / gameState.size);
+            const col2 = pos2 % gameState.size;
+            return Math.abs(row1 - row2) + Math.abs(col1 - col2) === 1;
+        }
+
+        // 开始计时器
+        function startTimer() {
+            if (gameState.timer) clearInterval(gameState.timer);
+            gameState.time = 0;
+            gameState.timer = setInterval(() => {
+                gameState.time++;
+                document.getElementById('timer').textContent = gameState.time + 's';
+            }, 1000);
+        }
+
+        // 检查是否获胜
+        function checkWin() {
+            const targetState = getTargetState(gameState.size);
+            const isWin = gameState.tiles.every((num, index) => num === targetState[index]);
+            if (isWin) {
+                clearInterval(gameState.timer);
+                alert('恭喜你完成了游戏！');
+            }
+        }
+
+        // 音乐开关
+        document.querySelector('.music-toggle').onclick = function() {
+            this.classList.toggle('on');
+            gameState.musicOn = !gameState.musicOn;
+            // 这里可以添加音乐播放/暂停的逻辑
+        };
+
+        // 重新开始按钮
+        document.getElementById('restartButton').onclick = function() {
+            gameState.steps = 0;
+            document.getElementById('steps').textContent = '0';
+            initGame();
+        };
+
+        // 返回按钮
+        document.querySelector('.back-button').onclick = function() {
+            history.back();
+        };
+
+        // 处理求解器表单提交
+        document.getElementById('solverForm').onsubmit = async function(event) {
             event.preventDefault();
             const formData = new FormData(this);
+            
+            // 验证输入的布局
+            const inputState = formData.get('initial_state').split(' ').map(Number);
+            const size = parseInt(formData.get('puzzle_size'));
+            
+            if (inputState.length !== size * size) {
+                alert(`输入的数字数量不正确，${size}阶需要${size * size}个数字`);
+                return;
+            }
+            
+            if (!isSolvable(inputState, size)) {
+                alert('输入的布局无解，请检查数字序列');
+                return;
+            }
+
             const response = await fetch(this.action, {
                 method: 'POST',
                 body: formData
             });
-            const result = await response.text();
-            document.getElementById('result').innerHTML = result;
+
+            const resultDiv = document.getElementById('result');
+            if (formData.get('print_each_step') === 'on') {
+                const data = await response.json();
+                let currentStep = 0;
+                
+                // 创建步骤控制界面
+                resultDiv.innerHTML = `
+                    <p>解决方案的步数：${data.total_steps}</p>
+                    <div class="step-controls">
+                        <button class="step-button" id="prevStep" disabled>上一步</button>
+                        <span id="stepInfo">初始状态</span>
+                        <button class="step-button" id="nextStep">下一步</button>
+                    </div>
+                    <div id="miniPuzzle" class="mini-puzzle-grid"></div>
+                `;
+
+                // 渲染小型拼图
+                function renderMiniPuzzle(state) {
+                    const puzzleDiv = document.getElementById('miniPuzzle');
+                    puzzleDiv.style.gridTemplateColumns = `repeat(${data.size}, 1fr)`;
+                    puzzleDiv.innerHTML = '';
+                    state.forEach(num => {
+                        const tile = document.createElement('div');
+                        tile.className = `mini-puzzle-tile ${num === 0 ? 'empty' : ''}`;
+                        if (num !== 0) {
+                            tile.textContent = num;
+                        }
+                        puzzleDiv.appendChild(tile);
+                    });
+                }
+
+                // 初始显示
+                renderMiniPuzzle(data.initial_state);
+
+                // 步骤控制
+                document.getElementById('prevStep').onclick = function() {
+                    currentStep--;
+                    updateStepDisplay();
+                };
+
+                document.getElementById('nextStep').onclick = function() {
+                    currentStep++;
+                    updateStepDisplay();
+                };
+
+                function updateStepDisplay() {
+                    const prevButton = document.getElementById('prevStep');
+                    const nextButton = document.getElementById('nextStep');
+                    const stepInfo = document.getElementById('stepInfo');
+
+                    prevButton.disabled = currentStep === 0;
+                    nextButton.disabled = currentStep === data.steps.length;
+
+                    if (currentStep === 0) {
+                        stepInfo.textContent = '初始状态';
+                        renderMiniPuzzle(data.initial_state);
+                    } else {
+                        const step = data.steps[currentStep - 1];
+                        stepInfo.textContent = `步骤 ${step.step}: 移动数字 ${step.number} ${step.direction}`;
+                        renderMiniPuzzle(step.state);
+                    }
+                }
+            } else {
+                const text = await response.text();
+                resultDiv.innerHTML = text;
+            }
         };
+
+        // 监听阶数选择变化
+        document.getElementById('puzzle_size').onchange = function() {
+            const newSize = parseInt(this.value);
+            if (newSize !== gameState.size) {
+                gameState.size = newSize;
+                initGame();
+            }
+        };
+
+        // 获取当前布局按钮点击事件
+        document.getElementById('getCurrentLayout').onclick = function() {
+            const currentLayout = gameState.tiles.join(' ');
+            document.getElementById('initial_state').value = currentLayout;
+            // 同步更新选择框的阶数
+            document.getElementById('puzzle_size').value = gameState.size;
+        };
+
+        // 初始化游戏（现在从3阶开始）
+        document.getElementById('puzzle_size').value = '3';
+        initGame();
     </script>
 </body>
 </html>

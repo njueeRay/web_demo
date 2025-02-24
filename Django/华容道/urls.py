@@ -1,7 +1,7 @@
 from django.urls import path
-from .views import my_view
+from .views import solve_puzzle
 
 urlpatterns = [
-    path('', my_view),
+    path('', solve_puzzle, name='solve_puzzle'),
     # ...existing code...
 ]
