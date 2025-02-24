@@ -34,7 +34,43 @@
   ```
 - **效果**: 保证生成的布局可解且难度适中
 
+## 2025-02-24 项目结构和导入问题修复
+- **问题**: 部署时遇到相对导入错误 `ImportError: attempted relative import with no known parent package`
+- **原因**: 
+  1. 项目结构不规范
+  2. 使用了相对导入（.views）
+  3. Django设置模块路径不正确
+- **修复**:
+  1. 更新了`urls.py`中的导入方式：
+     ```python
+     # 修改前
+     from .views import solve_puzzle
+     # 修改后
+     from funny_game.views import solve_puzzle
+     ```
+  2. 调整了`settings.py`中的配置：
+     ```python
+     # 修改BASE_DIR路径
+     BASE_DIR = Path(__file__).resolve().parent
+     
+     # 更新应用配置
+     INSTALLED_APPS = [
+         ...
+         'funny_game.apps.FunnyGameConfig',
+     ]
+     ```
+  3. 更新了`manage.py`中的设置：
+     ```python
+     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'settings')
+     ```
+- **效果**: 
+  1. 解决了相对导入错误
+  2. 项目结构更加规范
+  3. 静态文件配置正确
+
 ## 待解决问题
 1. 五阶华容道部分布局求解时间仍然较长
 2. 音乐功能待实现
-3. 移动端适配需要优化 
+3. 移动端适配需要优化
+4. 考虑添加用户认证功能
+5. 优化页面加载性能 
