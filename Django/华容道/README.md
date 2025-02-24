@@ -162,3 +162,137 @@
 ## 许可证
 
 本项目采用MIT许可证。详见LICENSE文件。
+
+---
+
+# 华容道游戏与求解器部署指南
+> create by njueeRay : 2025-02-23
+
+## PythonAnywhere 部署步骤
+
+### 1. 准备工作
+已有文件：
+```bash
+requirements.txt    # 项目依赖
+wsgi.py            # WSGI配置
+settings.py        # Django设置
+```
+
+### 2. 项目路径配置
+```bash
+# 源代码路径
+Source code: /home/hnjueeRay/myhuarongdao/Django/华容道
+
+# 工作目录
+Working directory: /home/hnjueeRay/myhuarongdao/Django/华容道
+
+# WSGI配置文件
+WSGI configuration file: /var/www/hnjueeray_pythonanywhere_com_wsgi.py
+
+# Python版本
+Python version: 3.10
+```
+
+### 3. 虚拟环境配置
+```bash
+# 创建虚拟环境
+mkvirtualenv --python=/usr/bin/python3.10 huarongdao-env
+
+# 安装依赖
+cd /home/hnjueeRay/myhuarongdao/Django/华容道
+pip install -r requirements.txt
+```
+
+### 4. WSGI 配置
+在 `/var/www/hnjueeray_pythonanywhere_com_wsgi.py` 中添加：
+```python
+import os
+import sys
+
+# 设置项目路径
+path = '/home/hnjueeRay/myhuarongdao/Django/华容道'
+if path not in sys.path:
+    sys.path.append(path)
+
+# 设置Django设置模块
+os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
+
+# 获取WSGI应用
+from django.core.wsgi import get_wsgi_application
+application = get_wsgi_application()
+```
+
+### 5. 静态文件配置
+1. **创建静态文件目录**：
+```bash
+mkdir -p /home/hnjueeRay/myhuarongdao/Django/华容道/static
+```
+
+2. **Web配置页面设置**：
+```
+Static files:
+URL: /static/
+Directory: /home/hnjueeRay/myhuarongdao/Django/华容道/static
+```
+
+3. **收集静态文件**：
+```bash
+cd /home/hnjueeRay/myhuarongdao/Django/华容道
+python manage.py collectstatic --noinput
+```
+
+### 6. Django设置修改
+在 `settings.py` 中更新：
+```python
+ALLOWED_HOSTS = ['hnjueeray.pythonanywhere.com']
+DEBUG = False  # 生产环境关闭调试
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+```
+
+### 7. 重新加载应用
+- 在Web配置页面点击 "Reload" 按钮
+- 访问 `https://hnjueeray.pythonanywhere.com`
+
+## 故障排除
+
+### 1. 500错误检查
+- 查看 `/var/log/hnjueeray.pythonanywhere.com.error.log`
+- 检查WSGI配置路径
+- 验证虚拟环境配置
+
+### 2. 静态文件问题
+- 确认目录权限：
+```bash
+chmod -R 755 /home/hnjueeRay/myhuarongdao/Django/华容道/static
+```
+- 验证静态文件是否正确收集
+- 检查URL配置
+
+### 3. 应用功能异常
+- 检查浏览器控制台
+- 验证API响应
+- 查看Django日志
+
+## 维护说明
+
+### 1. 定期维护
+- 每3个月登录续期
+- 检查日志文件
+- 更新依赖包
+
+### 2. 性能监控
+- 监控CPU使用情况
+- 检查响应时间
+- 观察错误日志
+
+### 3. 安全建议
+- 定期更新 `SECRET_KEY`
+- 保持依赖包最新
+- 监控异常访问
+
+## 技术支持
+如遇问题：
+1. 查看 DEBUG_LOG.md
+2. 检查错误日志
+3. 提交Issue反馈
