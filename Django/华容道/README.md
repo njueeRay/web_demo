@@ -201,7 +201,7 @@
 - 完成项目部署配置优化
 - 修复相对导入问题
 - 优化静态文件处理
-- 所有功能测试通过
+- 所有功能测试通过 ![](./figures/success.png)
 
 ### 2025-02-23
 - 优化A*算法性能
@@ -225,6 +225,9 @@ settings.py        # Django设置
 ```
 
 ### 2. 项目路径配置
+
+![](./figures/project_path.png)
+
 ```bash
 # 源代码路径
 Source code: /home/hnjueeRay/myhuarongdao/Django/华容道
@@ -269,6 +272,9 @@ application = get_wsgi_application()
 ```
 
 ### 5. 静态文件配置
+
+![](./figures/static_file.png)
+
 1. **创建静态文件目录**：
 ```bash
 mkdir -p /home/hnjueeRay/myhuarongdao/Django/华容道/static
